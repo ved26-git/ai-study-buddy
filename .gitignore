@@ -1,0 +1,44 @@
+# Dependencies & Build Outputs
+node_modules/
+build/
+dist/
+coverage/
+target/
+*.class
+
+# Environment Variables & Secrets
+.env*
+!.env.example
+
+# IDE & Editor Files
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# Logs & Temporary Files
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Local Spring configuration
+application-local.properties
+application-local.yml
+application-local.yaml
+
+# Database backups and dumps
+*.sql.bak
+*.dump
+*.backup
+
+# Local databases
+*.sqlite
+*.sqlite3
+
+# Runtime logs and packaged project archives
+*.log
+*.txt
+*.zip

@@ -1,0 +1,6 @@
+{
+  "name": "AI Study Buddy – AI-Powered Learning Platform",
+  "description": "Smart AI-powered learning platform featuring Notes Summarizer, Quiz Generator with server-side grading, Doubt Solver, and student analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

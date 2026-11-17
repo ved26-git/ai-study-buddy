@@ -1,0 +1,378 @@
+{
+  "info": {
+    "name": "AI Study Buddy - Spring Boot REST API Collection",
+    "description": "Production Postman test collection for AI Study Buddy Java 17 + Spring Boot + MySQL + Gemini AI backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sampleNoteId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "sampleQuizId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "sampleDoubtId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Register Student Account",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alex Johnson\",\n  \"email\": \"alex@aistudybuddy.com\",\n  \"password\": \"password123\",\n  \"profilePicture\": \"/assets/images/student_avatar_user_1794203529926.jpg\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] }
+          }
+        },
+        {
+          "name": "Login Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('authToken', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alex@aistudybuddy.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Get Current Authenticated User (GET /api/auth/me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me"] }
+          }
+        },
+        {
+          "name": "Logout Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/auth/logout", "host": ["{{baseUrl}}"], "path": ["api", "auth", "logout"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. AI Notes Summarizer",
+      "item": [
+        {
+          "name": "Summarize Study Notes",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Operating Systems: Deadlock & Prevention\",\n  \"content\": \"A deadlock in operating systems occurs when two or more processes cannot proceed because each is waiting for another resource held by someone else. Four Coffman conditions must hold: Mutual Exclusion, Hold and Wait, No Preemption, Circular Wait. Prevention requires invalidating at least one of these conditions.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/notes/summarize", "host": ["{{baseUrl}}"], "path": ["api", "notes", "summarize"] }
+          }
+        },
+        {
+          "name": "Get All Saved Notes",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/notes", "host": ["{{baseUrl}}"], "path": ["api", "notes"] }
+          }
+        },
+        {
+          "name": "Get Note Details By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/notes/{{sampleNoteId}}", "host": ["{{baseUrl}}"], "path": ["api", "notes", "{{sampleNoteId}}"] }
+          }
+        },
+        {
+          "name": "Delete Note By ID",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/notes/{{sampleNoteId}}", "host": ["{{baseUrl}}"], "path": ["api", "notes", "{{sampleNoteId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. AI Quiz Generator",
+      "item": [
+        {
+          "name": "Generate Quiz (Concealed Answer Keys)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data.quizId) {",
+                  "    pm.collectionVariables.set('sampleQuizId', data.quizId.toString());",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topic\": \"Java Object-Oriented Programming (OOP)\",\n  \"numQuestions\": 5,\n  \"difficulty\": \"Medium\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/quiz/generate", "host": ["{{baseUrl}}"], "path": ["api", "quiz", "generate"] }
+          }
+        },
+        {
+          "name": "Submit Quiz for Server-Side Grading",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answers\": {\n    \"0\": \"Encapsulation\",\n    \"1\": \"final\",\n    \"2\": \"The Diamond Problem\",\n    \"3\": \"Comparable\",\n    \"4\": \"public\"\n  }\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/quiz/{{sampleQuizId}}/submit", "host": ["{{baseUrl}}"], "path": ["api", "quiz", "{{sampleQuizId}}", "submit"] }
+          }
+        },
+        {
+          "name": "Get User Quizzes",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/quiz", "host": ["{{baseUrl}}"], "path": ["api", "quiz"] }
+          }
+        },
+        {
+          "name": "Get Quiz By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/quiz/{{sampleQuizId}}", "host": ["{{baseUrl}}"], "path": ["api", "quiz", "{{sampleQuizId}}"] }
+          }
+        },
+        {
+          "name": "Delete Quiz By ID",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/quiz/{{sampleQuizId}}", "host": ["{{baseUrl}}"], "path": ["api", "quiz", "{{sampleQuizId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. AI Doubt Solver",
+      "item": [
+        {
+          "name": "Ask Academic Doubt",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data.doubtId) {",
+                  "    pm.collectionVariables.set('sampleDoubtId', data.doubtId.toString());",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"Explain the difference between Comparable and Comparator in Java.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/doubts/ask", "host": ["{{baseUrl}}"], "path": ["api", "doubts", "ask"] }
+          }
+        },
+        {
+          "name": "Get Doubt Chat History",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/doubts/history", "host": ["{{baseUrl}}"], "path": ["api", "doubts", "history"] }
+          }
+        },
+        {
+          "name": "Delete Single Doubt By ID",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/doubts/{{sampleDoubtId}}", "host": ["{{baseUrl}}"], "path": ["api", "doubts", "{{sampleDoubtId}}"] }
+          }
+        },
+        {
+          "name": "Clear All Doubt Chat History",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/doubts/clear", "host": ["{{baseUrl}}"], "path": ["api", "doubts", "clear"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Dashboard & Analytics",
+      "item": [
+        {
+          "name": "Get Dashboard Statistics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/dashboard/stats", "host": ["{{baseUrl}}"], "path": ["api", "dashboard", "stats"] }
+          }
+        },
+        {
+          "name": "Get Recent Learning Activities Timeline",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/dashboard/recent-activities", "host": ["{{baseUrl}}"], "path": ["api", "dashboard", "recent-activities"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Learning History",
+      "item": [
+        {
+          "name": "Get Full Learning History (Notes, Quizzes, Doubts)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/history", "host": ["{{baseUrl}}"], "path": ["api", "history"] }
+          }
+        },
+        {
+          "name": "Delete Note From History",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/history/notes/{{sampleNoteId}}", "host": ["{{baseUrl}}"], "path": ["api", "history", "notes", "{{sampleNoteId}}"] }
+          }
+        },
+        {
+          "name": "Delete Quiz From History",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/history/quizzes/{{sampleQuizId}}", "host": ["{{baseUrl}}"], "path": ["api", "history", "quizzes", "{{sampleQuizId}}"] }
+          }
+        },
+        {
+          "name": "Delete Doubt From History",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/history/doubts/{{sampleDoubtId}}", "host": ["{{baseUrl}}"], "path": ["api", "history", "doubts", "{{sampleDoubtId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Negative & Security Test Cases",
+      "item": [
+        {
+          "name": "Expect 401: Unauthorized Request Without Bearer Token",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/notes", "host": ["{{baseUrl}}"], "path": ["api", "notes"] }
+          }
+        },
+        {
+          "name": "Expect 400: Duplicate Registration Attempt",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alex Johnson\",\n  \"email\": \"alex@aistudybuddy.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] }
+          }
+        },
+        {
+          "name": "Expect 401: Login With Invalid Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alex@aistudybuddy.com\",\n  \"password\": \"wrongPassword123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Expect 400: Access Invalid Note ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/notes/999999", "host": ["{{baseUrl}}"], "path": ["api", "notes", "999999"] }
+          }
+        }
+      ]
+    }
+  ]
+}
